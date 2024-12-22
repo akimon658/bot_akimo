@@ -39,7 +39,7 @@ async fn handle_event(req: Request) -> StatusCode {
             };
 
             match event_str {
-                "PING" => StatusCode::OK,
+                "PING" => StatusCode::NO_CONTENT,
                 _ => StatusCode::BAD_REQUEST,
             }
         }

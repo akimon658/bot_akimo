@@ -59,7 +59,7 @@ pub async fn root(text: String, target_id: String, is_dm: bool) -> StatusCode {
                     &config,
                     &target_id,
                     Some(PostMessageRequest {
-                        content: "https://q.trap.jp/files/0193ecfb-fb3b-7a3c-8547-377733691e13"
+                        content: "https://q.trap.jp/files/0193eee8-5abd-7c98-bee8-de164bf705e9"
                             .to_string(),
                         embed: None,
                     }),

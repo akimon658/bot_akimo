@@ -8,6 +8,7 @@ use crate::cmd;
 static TRAQ_VERIFICATION_TOKEN: OnceLock<String> = OnceLock::new();
 
 #[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 struct DirectMessage {
     pub plain_text: String,
 }
@@ -24,6 +25,7 @@ struct EventDirectMessageCreated {
 }
 
 #[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 struct Message {
     pub channel_id: String,
     pub plain_text: String,

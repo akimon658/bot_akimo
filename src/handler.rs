@@ -11,6 +11,7 @@ static TRAQ_VERIFICATION_TOKEN: OnceLock<String> = OnceLock::new();
 #[serde(rename_all = "camelCase")]
 struct DirectMessage {
     pub plain_text: String,
+    pub user: User,
 }
 
 #[derive(Deserialize)]
@@ -21,7 +22,6 @@ struct User {
 #[derive(Deserialize)]
 struct EventDirectMessageCreated {
     pub message: DirectMessage,
-    pub user: User,
 }
 
 #[derive(Deserialize)]

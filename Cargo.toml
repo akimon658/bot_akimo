@@ -7,7 +7,7 @@ repository = "https://github.com/akimon658/bot_akimo"
 
 [profile.release]
 codegen-units = 1
-lto = fat
+lto = "fat"
 opt-level = "s"
 strip = "symbols"
 

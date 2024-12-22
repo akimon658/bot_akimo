@@ -78,7 +78,7 @@ pub async fn handle_event(req: Request) -> StatusCode {
                         }
                     };
 
-                    cmd::root(event.message.plain_text, event.user.id, true).await
+                    cmd::root(event.message.plain_text, event.message.user.id, true).await
                 }
                 "MESSAGE_CREATED" => {
                     let body_bytes = match to_bytes(req.into_body(), usize::MAX).await {

@@ -51,7 +51,7 @@ pub async fn root(text: String, channel_id: String) -> StatusCode {
             {
                 Ok(_) => StatusCode::OK,
                 Err(e) => {
-                    eprintln!("{}", e);
+                    eprintln!("Failed to send a message to channel {}: {}", channel_id, e);
                     StatusCode::INTERNAL_SERVER_ERROR
                 }
             };

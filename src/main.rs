@@ -1,8 +1,10 @@
-use std::{env::var, error::Error, sync::OnceLock};
+use std::error::Error;
 
-use axum::{extract::Request, http::StatusCode, routing::post, Router};
+use axum::{routing::post, Router};
+use handler::handle_event;
 
-static TRAQ_VERIFICATION_TOKEN: OnceLock<String> = OnceLock::new();
+mod cmd;
+mod handler;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -12,37 +14,4 @@ async fn main() -> Result<(), Box<dyn Error>> {
     axum::serve(listener, router).await?;
 
     Ok(())
-}
-
-async fn handle_event(req: Request) -> StatusCode {
-    let headers = req.headers();
-    let request_token = match headers.get("X-TRAQ-BOT-TOKEN") {
-        Some(token) => token,
-        None => return StatusCode::BAD_REQUEST,
-    };
-    let verification_token = TRAQ_VERIFICATION_TOKEN.get_or_init(|| {
-        var("TRAQ_VERIFICATION_TOKEN").expect("TRAQ_VERIFICATION_TOKEN is not set")
-    });
-
-    if request_token != verification_token {
-        return StatusCode::FORBIDDEN;
-    }
-
-    match headers.get("X-TRAQ-BOT-EVENT") {
-        Some(event) => {
-            let event_str = match event.to_str() {
-                Ok(event_str) => event_str,
-                Err(e) => {
-                    eprintln!("{}", e);
-                    return StatusCode::INTERNAL_SERVER_ERROR;
-                }
-            };
-
-            match event_str {
-                "PING" => StatusCode::NO_CONTENT,
-                _ => StatusCode::BAD_REQUEST,
-            }
-        }
-        _ => StatusCode::BAD_REQUEST,
-    }
 }

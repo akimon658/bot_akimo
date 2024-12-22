@@ -8,6 +8,22 @@ use crate::cmd;
 static TRAQ_VERIFICATION_TOKEN: OnceLock<String> = OnceLock::new();
 
 #[derive(Deserialize)]
+struct DirectMessage {
+    pub plain_text: String,
+}
+
+#[derive(Deserialize)]
+struct User {
+    pub id: String,
+}
+
+#[derive(Deserialize)]
+struct EventDirectMessageCreated {
+    pub message: DirectMessage,
+    pub user: User,
+}
+
+#[derive(Deserialize)]
 struct Message {
     pub channel_id: String,
     pub plain_text: String,
@@ -43,7 +59,26 @@ pub async fn handle_event(req: Request) -> StatusCode {
             };
 
             match event_str {
-                "DIRECT_MESSAGE_CREATED" | "MESSAGE_CREATED" => {
+                "DIRECT_MESSAGE_CREATED" => {
+                    let body_bytes = match to_bytes(req.into_body(), usize::MAX).await {
+                        Ok(body_bytes) => body_bytes,
+                        Err(e) => {
+                            eprintln!("{}", e);
+                            return StatusCode::INTERNAL_SERVER_ERROR;
+                        }
+                    };
+                    let event: EventDirectMessageCreated = match serde_json::from_slice(&body_bytes)
+                    {
+                        Ok(event) => event,
+                        Err(e) => {
+                            eprintln!("{}", e);
+                            return StatusCode::INTERNAL_SERVER_ERROR;
+                        }
+                    };
+
+                    cmd::root(event.message.plain_text, event.user.id, true).await
+                }
+                "MESSAGE_CREATED" => {
                     let body_bytes = match to_bytes(req.into_body(), usize::MAX).await {
                         Ok(body_bytes) => body_bytes,
                         Err(e) => {
@@ -59,7 +94,7 @@ pub async fn handle_event(req: Request) -> StatusCode {
                         }
                     };
 
-                    cmd::root(event.message.plain_text, event.message.channel_id).await
+                    cmd::root(event.message.plain_text, event.message.channel_id, false).await
                 }
                 "PING" => StatusCode::NO_CONTENT,
                 _ => StatusCode::BAD_REQUEST,
